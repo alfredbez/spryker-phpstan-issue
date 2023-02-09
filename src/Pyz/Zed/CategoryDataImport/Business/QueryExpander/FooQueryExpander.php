@@ -37,23 +37,22 @@ class FooCategoryQueryExpander
      */
     public function expand(array $dataRows): array
     {
-        $productAbstractIds = array_column($dataRows, ProductAbstractTransfer::ID_PRODUCT_ABSTRACT);
-        $productAbstractIds = array_unique($productAbstractIds);
-
         $categoriesQuery = $this->productCategoryQuery
-            ->filterByFkProductAbstract_In($productAbstractIds)
-            ->useSpyCategoryQuery()
-            ->joinNode()
-            ->filterByIsActive(true)
-            ->filterByIsSearchable(true)
-            ->useAttributeQuery(null, Criteria::LEFT_JOIN)
-            ->useLocaleQuery()
-            ->filterByIsActive(true)
-            ->endUse()
-            ->endUse()
-            ->endUse();
+            ->filterByFkProductAbstract_In($dataRows)
+                ->useSpyCategoryQuery()
+                    ->joinNode()
+                    ->filterByIsActive(true)
+                    ->filterByIsSearchable(true)
+                    ->useAttributeQuery(null, Criteria::LEFT_JOIN)
+                        ->useLocaleQuery()
+                            ->filterByIsActive(true)
+                        ->endUse()
+                    ->endUse()
+                ->endUse();
 
+        // These lines in combination with the use*Query methods above make the analysis very slow
         $categoriesQuery = $categoriesQuery->withColumn(SpyProductCategoryTableMap::COL_FK_PRODUCT_ABSTRACT, ProductAbstractTransfer::ID_PRODUCT_ABSTRACT);
+        /*
         $categoriesQuery = $categoriesQuery->withColumn(SpyCategoryTableMap::COL_ID_CATEGORY, CategoryTransfer::ID_CATEGORY);
         $categoriesQuery = $categoriesQuery->withColumn(SpyCategoryTableMap::COL_IS_ACTIVE, CategoryTransfer::IS_ACTIVE);
         $categoriesQuery = $categoriesQuery->withColumn(SpyCategoryTableMap::COL_IS_SEARCHABLE, CategoryTransfer::IS_SEARCHABLE);
@@ -69,23 +68,8 @@ class FooCategoryQueryExpander
         $categoriesQuery = $categoriesQuery->withColumn(SpyCategoryNodeTableMap::COL_NODE_ORDER, NodeTransfer::NODE_ORDER);
         $categoriesQuery = $categoriesQuery->withColumn(SpyCategoryNodeTableMap::COL_FK_PARENT_CATEGORY_NODE, NodeTransfer::FK_PARENT_CATEGORY_NODE);
         $categoriesQuery = $categoriesQuery->setFormatter(new ArrayFormatter());
+        */
 
-        $categories = $categoriesQuery
-            ->find()
-            ->getArrayCopy();
-
-        $dataRowsWithCategories = [];
-
-        foreach ($dataRows as $offerDataUniqueRow) {
-            $offerDataUniqueRow['KEY_CATEGORIES'] = [];
-            foreach ($categories as $category) {
-                if ((int)$category[ProductAbstractTransfer::ID_PRODUCT_ABSTRACT] === (int)$offerDataUniqueRow[ProductAbstractTransfer::ID_PRODUCT_ABSTRACT]) {
-                    $offerDataUniqueRow['KEY_CATEGORIES'][$category[CategoryTransfer::ID_CATEGORY]][] = $category;
-                }
-            }
-            $dataRowsWithCategories[] = $offerDataUniqueRow;
-        }
-
-        return $dataRowsWithCategories;
+        return [];
     }
 }
