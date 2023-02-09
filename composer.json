@@ -278,6 +278,12 @@
         "phpstan-setup": "vendor/bin/console dev:ide-auto-completion:generate",
         "prefer-mid": [
             "COMPOSER_MEMORY_LIMIT=-1 composer require twig/twig:\"^2.9.0\""
+        ],
+        "setup-spryker": [
+            "APPLICATION_ENV=development vendor/bin/console propel:schema:copy",
+            "APPLICATION_ENV=development vendor/bin/console propel:model:build",
+            "APPLICATION_ENV=development php -d memory_limit=512M vendor/bin/console transfer:generate",
+            "APPLICATION_ENV=development vendor/bin/console dev:ide-auto-completion:generate"
         ]
     }
 }
